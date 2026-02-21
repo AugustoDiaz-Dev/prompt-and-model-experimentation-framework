@@ -17,10 +17,11 @@ This folder contains the **boilerplate + first working steps** for **Project 3: 
 
 ## Quickstart
 
-Start Postgres and MLflow:
+Clone the repo and from its root:
 
 ```bash
-cd "/Users/augustodiaz/Downloads/MVP-lab/fintech-portfolio /framework"
+git clone https://github.com/AugustoDiaz-Dev/prompt-and-model-experimentation-framework.git
+cd prompt-and-model-experimentation-framework
 docker compose up -d
 ```
 
@@ -57,4 +58,4 @@ uvicorn app.main:app --reload --port 8002
 
 ## Tracking
 
-See `STATUS.md` for a checklist of what's completed and what remains for Project 3.
+Use [docs/TESTING.md](docs/TESTING.md) to verify the project. Copy `.env.example` to `.env` and set `DATABASE_URL` and optionally `MLFLOW_TRACKING_URI` and `OPENAI_API_KEY`.
