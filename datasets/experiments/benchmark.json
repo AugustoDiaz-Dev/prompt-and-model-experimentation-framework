@@ -1,0 +1,23 @@
+[
+    {
+        "id": "tc_001",
+        "input": "Explain the difference between a stock and a bond.",
+        "context": "A stock represents a share in the ownership of a company. A bond is a fixed income instrument that represents a loan made by an investor to a borrower.",
+        "expected": "A stock is equity (ownership), while a bond is debt (a loan).",
+        "category": "finance_basics"
+    },
+    {
+        "id": "tc_002",
+        "input": "What is compound interest?",
+        "context": "Compound interest is the addition of interest to the principal sum of a loan or deposit, or in other words, interest on principal plus interest.",
+        "expected": "Interest calculated on the initial principal and also on the accumulated interest of previous periods.",
+        "category": "finance_basics"
+    },
+    {
+        "id": "tc_003",
+        "input": "Summarize the risks of margin trading.",
+        "context": "Margin trading magnifies both potential profits and potential losses. If the value of the securities in a margin account drops significantly, the broker can issue a margin call requiring the investor to deposit more funds.",
+        "expected": "Margin trading amplifies both gains and losses. It carries the risk of a margin call if asset values drop.",
+        "category": "advanced_trading"
+    }
+]
