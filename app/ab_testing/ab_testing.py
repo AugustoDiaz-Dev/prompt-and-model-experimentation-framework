@@ -8,6 +8,8 @@ import math
 from scipy import stats
 import numpy as np
 
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import ABTest, Experiment
@@ -33,8 +35,14 @@ class ABTestingModule:
         if not 0.0 <= traffic_split <= 1.0:
             raise ValueError("traffic_split must be between 0.0 and 1.0")
 
-        exp_a = await self._session.get(Experiment, experiment_a_id)
-        exp_b = await self._session.get(Experiment, experiment_b_id)
+        stmt_a = select(Experiment).where(Experiment.id == experiment_a_id).options(joinedload(Experiment.metrics))
+        stmt_b = select(Experiment).where(Experiment.id == experiment_b_id).options(joinedload(Experiment.metrics))
+        
+        result_a = await self._session.execute(stmt_a)
+        result_b = await self._session.execute(stmt_b)
+        
+        exp_a = result_a.unique().scalar_one_or_none()
+        exp_b = result_b.unique().scalar_one_or_none()
 
         if not exp_a or not exp_b:
             raise ValueError("One or both experiments not found")

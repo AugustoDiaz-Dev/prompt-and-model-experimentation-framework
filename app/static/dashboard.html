@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Framework | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        :root {
+            --bg-deep: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --accent-primary: #38bdf8;
+            --accent-secondary: #818cf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg-deep);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: var(--sidebar-width);
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            backdrop-filter: blur(15px);
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        nav ul {
+            list-style: none;
+        }
+
+        nav li {
+            padding: 0.85rem 1.25rem;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+        }
+
+        nav li.active,
+        nav li:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        nav li.active {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--glass-border);
+            background: rgba(56, 189, 248, 0.08);
+            color: var(--accent-primary);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2.5rem;
+            max-width: 1400px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .user-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Dashboard Components */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button {
+            padding: 0.85rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid var(--glass-border);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-info {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+        }
+
+        /* Utilities */
+        [v-cloak] {
+            display: none;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Results table styling */
+        .results-table {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .mlflow-link {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .mlflow-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <aside>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20"></path>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                EP-Framework
+            </div>
+            <nav>
+                <ul>
+                    <li :class="{active: currentTab === 'dashboard'}" @click="currentTab = 'dashboard'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        Overview
+                    </li>
+                    <li :class="{active: currentTab === 'registry'}" @click="currentTab = 'registry'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        Prompt Registry
+                    </li>
+                    <li :class="{active: currentTab === 'experiments'}" @click="currentTab = 'experiments'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        Experiments
+                    </li>
+                    <li :class="{active: currentTab === 'abtest'}" @click="currentTab = 'abtest'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M16 3h5v5"></path>
+                            <path d="M8 3H3v5"></path>
+                            <path d="M21 3L14.5 9.5"></path>
+                            <path d="M3 3l6.5 6.5"></path>
+                            <path d="M16 21h5v-5"></path>
+                            <path d="M3 16v5h5"></path>
+                            <path d="M21 21l-6.5-6.5"></path>
+                            <path d="M3 21l6.5-6.5"></path>
+                        </svg>
+                        A/B Testing
+                    </li>
+                </ul>
+            </nav>
+
+            <div style="margin-top: auto;">
+                <a href="http://localhost:5001" target="_blank" class="mlflow-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    MLflow Tracking
+                </a>
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <h1 style="font-size: 2.25rem;">{{ tabTitle }}</h1>
+                <div class="user-controls">
+                    <a href="/" class="btn-secondary" style="text-decoration: none;">Portal Exit</a>
+                </div>
+            </header>
+
+            <!-- TAB: Dashboard Overview -->
+            <div v-if="currentTab === 'dashboard'">
+                <div class="grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Active Prompts</div>
+                        <div class="stat-value">{{ prompts.length }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Experiments Run</div>
+                        <div class="stat-value">{{ experimentHistory.length }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">System Status</div>
+                        <div class="stat-value" style="color: #4ade80;">Operational</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem;">Recent Experiments</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Model</th>
+                                <th>Accuracy</th>
+                                <th>Latency</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="exp in experimentHistory" :key="exp.id">
+                                <td>{{ exp.name }}</td>
+                                <td><span class="badge badge-info">{{ exp.model_name }}</span></td>
+                                <td>{{ (exp.accuracy * 100).toFixed(1) }}%</td>
+                                <td>{{ exp.latency_ms.toFixed(0) }}ms</td>
+                                <td>
+                                    <button class="btn-secondary" style="padding: 0.5rem 1rem;"
+                                        @click="viewReport(exp.id)">Report</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Registry -->
+            <div v-if="currentTab === 'registry'">
+                <div class="card">
+                    <h2 style="margin-bottom: 2rem;">Register New Prompt</h2>
+                    <form @submit.prevent="registerPrompt">
+                        <div class="form-group">
+                            <label>Prompt Name</label>
+                            <input v-model="newPrompt.name" placeholder="e.g., customer_service_v1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>System Content</label>
+                            <textarea v-model="newPrompt.content" placeholder="Define model behavior..."
+                                required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Author</label>
+                            <input v-model="newPrompt.author" placeholder="Your name">
+                        </div>
+                        <button type="submit" class="btn-primary" :disabled="loading">
+                            <span v-if="loading" class="loader"></span>
+                            <span v-else>Register Prompt</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2 style="margin-bottom: 1.5rem;">Registry History</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Version</th>
+                                <th>Author</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="p in prompts" :key="p.id">
+                                <td>{{ p.name }}</td>
+                                <td><span class="badge badge-info">v{{ p.version }}</span></td>
+                                <td>{{ p.author }}</td>
+                                <td>{{ new Date(p.created_at).toLocaleDateString() }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Experiments -->
+            <div v-if="currentTab === 'experiments'">
+                <div class="card">
+                    <h2 style="margin-bottom: 2rem;">Configure Experiment</h2>
+                    <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group">
+                            <label>Experiment Name</label>
+                            <input v-model="expForm.name" placeholder="e.g., testing_claude_vs_gpt">
+                        </div>
+                        <div class="form-group">
+                            <label>Select Prompt</label>
+                            <select v-model="expForm.prompt_name">
+                                <option value="">Select a prompt...</option>
+                                <option v-for="name in uniquePromptNames" :value="name">{{ name }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div class="form-group">
+                            <label>Model</label>
+                            <select v-model="expForm.model_name">
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                                <option value="mock-model">Local/Mock Model</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature ({{ expForm.temperature }})</label>
+                            <input type="range" v-model="expForm.temperature" min="0" max="1" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Seed</label>
+                            <input type="number" v-model="expForm.seed" placeholder="Optional">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" @click="runExperiment" :disabled="loading || !expForm.prompt_name">
+                        <span v-if="loading" class="loader"></span>
+                        <span v-else>Run Benchmark</span>
+                    </button>
+                </div>
+
+                <div v-if="activeResult" class="card" style="border-color: var(--accent-primary);">
+                    <div class="flex-between" style="margin-bottom: 1.5rem;">
+                        <h2>Live Result: {{ activeResult.name }}</h2>
+                        <span class="badge badge-success">Completed</span>
+                    </div>
+                    <div class="grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Accuracy</div>
+                            <div class="stat-value">{{ (activeResult.accuracy * 100).toFixed(1) }}%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Latency</div>
+                            <div class="stat-value">{{ activeResult.latency_ms.toFixed(0) }}ms</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Cost Est.</div>
+                            <div class="stat-value">${{ activeResult.cost_usd.toFixed(4) }}</div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" @click="viewReport(activeResult.id)">View Full Report</button>
+                </div>
+            </div>
+
+            <!-- TAB: A/B Testing -->
+            <div v-if="currentTab === 'abtest'">
+                <div class="card">
+                    <h2 style="margin-bottom: 2rem;">A/B Significant Testing</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Compare two completed experiments using
+                        Mann-Whitney U statistical test.</p>
+
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Exp A (Control)</label>
+                            <select v-model="abForm.expA">
+                                <option v-for="exp in experimentHistory" :value="exp.id">{{ exp.name }} ({{
+                                    exp.model_name }})</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Exp B (Variant)</label>
+                            <select v-model="abForm.expB">
+                                <option v-for="exp in experimentHistory" :value="exp.id">{{ exp.name }} ({{
+                                    exp.model_name }})</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" @click="runABTest" :disabled="loading || !abForm.expA || !abForm.expB">
+                        <span v-if="loading" class="loader"></span>
+                        <span v-else>Calculate Significance</span>
+                    </button>
+                </div>
+
+                <div v-if="abResult" class="card">
+                    <h2 style="margin-bottom: 1.5rem;">Statistical Result</h2>
+                    <div class="grid">
+                        <div class="stat-card">
+                            <div class="stat-label">P-Value</div>
+                            <div class="stat-value">{{ abResult.p_value.toFixed(4) }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Significant</div>
+                            <div class="stat-value" :style="{color: abResult.significant ? '#4ade80' : '#ef4444'}">
+                                {{ abResult.significant ? 'YES' : 'NO' }}
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Winner</div>
+                            <div class="stat-value">Exp {{ abResult.recommendation }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Report Modal (Simple) -->
+        <div v-if="showModal"
+            style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 2rem;">
+            <div class="card" style="max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                <div class="flex-between" style="margin-bottom: 2rem;">
+                    <h2>Experiment Report</h2>
+                    <button class="btn-secondary" @click="showModal = false">Close</button>
+                </div>
+                <pre
+                    style="white-space: pre-wrap; color: var(--text-main); font-size: 0.9rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">{{ selectedReport }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, computed } = Vue;
+
+        createApp({
+            setup() {
+                const currentTab = ref('dashboard');
+                const loading = ref(false);
+                const prompts = ref([]);
+                const experimentHistory = ref([]);
+                const activeResult = ref(null);
+                const showModal = ref(false);
+                const selectedReport = ref('');
+
+                const newPrompt = ref({ name: '', content: '', author: 'Admin' });
+                const expForm = ref({ name: 'New Bench', prompt_name: '', model_name: 'mock-model', temperature: 0.7, seed: null });
+                const abForm = ref({ expA: '', expB: '' });
+                const abResult = ref(null);
+
+                const tabTitle = computed(() => {
+                    const titles = {
+                        dashboard: 'Overview',
+                        registry: 'Prompt Registry',
+                        experiments: 'Standard Benchmark',
+                        abtest: 'A/B Significance'
+                    };
+                    return titles[currentTab.value];
+                });
+
+                const uniquePromptNames = computed(() => {
+                    return [...new Set(prompts.value.map(p => p.name))];
+                });
+
+                const fetchData = async () => {
+                    try {
+                        const pResp = await fetch('/api/prompts');
+                        prompts.value = await pResp.json();
+
+                        // In a real app we'd fetch actual experiments. 
+                        // For now we'll list the ones from the registry or dummy them if empty
+                    } catch (e) {
+                        console.error('Failed to fetch data', e);
+                    }
+                };
+
+                const registerPrompt = async () => {
+                    loading.value = true;
+                    try {
+                        const resp = await fetch('/api/prompts', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(newPrompt.value)
+                        });
+                        const data = await resp.json();
+                        prompts.value.unshift(data);
+                        newPrompt.value = { name: '', content: '', author: 'Admin' };
+                        currentTab.value = 'dashboard';
+                    } catch (e) {
+                        alert('Registration failed');
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const runExperiment = async () => {
+                    loading.value = true;
+                    try {
+                        // Using small benchmark test cases
+                        const testCases = [
+                            { input: "Explain a stock.", expected: "A stock is equity (ownership), while a bond is debt (a loan)." },
+                            { input: "What is compound interest?", expected: "Interest calculated on the initial principal and also on the accumulated interest of previous periods." }
+                        ];
+
+                        const payload = {
+                            ...expForm.value,
+                            test_cases: testCases
+                        };
+
+                        const resp = await fetch('/api/experiments', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await resp.json();
+                        activeResult.value = data;
+                        experimentHistory.value.unshift(data);
+                    } catch (e) {
+                        alert('Experiment failed. Make sure server is running.');
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const runABTest = async () => {
+                    loading.value = true;
+                    try {
+                        const resp = await fetch('/api/ab-tests', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: "Significance Verification",
+                                experiment_a_id: abForm.value.expA,
+                                experiment_b_id: abForm.value.expB,
+                                traffic_split: 0.5,
+                                metric_name: "accuracy"
+                            })
+                        });
+                        abResult.value = await resp.json();
+                    } catch (e) {
+                        alert('A/B Test failed. Both experiments must have metrics.');
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const viewReport = async (id) => {
+                    try {
+                        const resp = await fetch(`/api/reports/${id}`);
+                        const data = await resp.json();
+                        selectedReport.value = data.report;
+                        showModal.value = true;
+                    } catch (e) {
+                        alert('Could not fetch report');
+                    }
+                };
+
+                onMounted(fetchData);
+
+                return {
+                    currentTab, loading, prompts, experimentHistory, activeResult,
+                    newPrompt, expForm, abForm, abResult, tabTitle,
+                    uniquePromptNames, registerPrompt, runExperiment, runABTest,
+                    viewReport, showModal, selectedReport
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

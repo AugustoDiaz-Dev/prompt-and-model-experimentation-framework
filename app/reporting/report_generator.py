@@ -3,6 +3,8 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 import json
 
@@ -45,7 +47,9 @@ class ReportGenerator:
         self._metrics_calc = MetricsCalculator()
 
     async def generate_experiment_report(self, experiment_id: uuid.UUID) -> str:
-        experiment = await self._session.get(Experiment, experiment_id)
+        stmt = select(Experiment).where(Experiment.id == experiment_id).options(joinedload(Experiment.metrics))
+        result = await self._session.execute(stmt)
+        experiment = result.unique().scalar_one_or_none()
         if not experiment:
             raise ValueError(f"Experiment {experiment_id} not found")
 
@@ -88,8 +92,14 @@ class ReportGenerator:
         if not ab_test:
             raise ValueError(f"AB test {ab_test_id} not found")
 
-        exp_a = await self._session.get(Experiment, ab_test.experiment_a_id)
-        exp_b = await self._session.get(Experiment, ab_test.experiment_b_id)
+        stmt_a = select(Experiment).where(Experiment.id == ab_test.experiment_a_id).options(joinedload(Experiment.metrics))
+        stmt_b = select(Experiment).where(Experiment.id == ab_test.experiment_b_id).options(joinedload(Experiment.metrics))
+        
+        result_a = await self._session.execute(stmt_a)
+        result_b = await self._session.execute(stmt_b)
+        
+        exp_a = result_a.unique().scalar_one_or_none()
+        exp_b = result_b.unique().scalar_one_or_none()
 
         if not exp_a or not exp_b:
             raise ValueError("Experiments not found")
@@ -194,8 +204,15 @@ class ReportGenerator:
         if not ab_test:
             return None
 
-        exp_a = await self._session.get(Experiment, ab_test.experiment_a_id)
-        exp_b = await self._session.get(Experiment, ab_test.experiment_b_id)
+        stmt_a = select(Experiment).where(Experiment.id == ab_test.experiment_a_id).options(joinedload(Experiment.metrics))
+        stmt_b = select(Experiment).where(Experiment.id == ab_test.experiment_b_id).options(joinedload(Experiment.metrics))
+        
+        result_a = await self._session.execute(stmt_a)
+        result_b = await self._session.execute(stmt_b)
+        
+        exp_a = result_a.unique().scalar_one_or_none()
+        exp_b = result_b.unique().scalar_one_or_none()
+
         if not exp_a or not exp_b:
             return None
 

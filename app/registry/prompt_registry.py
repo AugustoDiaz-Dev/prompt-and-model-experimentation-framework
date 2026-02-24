@@ -44,7 +44,7 @@ class PromptRegistry:
 
         logger.info(
             "prompt_registered",
-            extra={"prompt_id": str(prompt.id), "name": name, "version": next_version},
+            extra={"prompt_id": str(prompt.id), "prompt_name": name, "version": next_version},
         )
         return prompt.id
 
