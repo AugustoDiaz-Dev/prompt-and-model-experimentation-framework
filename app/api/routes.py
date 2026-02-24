@@ -4,6 +4,7 @@ import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ab_testing.ab_testing import ABTestingModule
@@ -121,13 +122,16 @@ async def create_experiment(
         cost_usd=result.cost_usd,
     )
 
+from sqlalchemy.orm import joinedload
 
 @router.get("/experiments/{experiment_id}", response_model=ExperimentResponse)
 async def get_experiment(
     experiment_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
 ) -> ExperimentResponse:
-    experiment = await session.get(Experiment, experiment_id)
+    stmt = select(Experiment).where(Experiment.id == experiment_id).options(joinedload(Experiment.metrics))
+    result = await session.execute(stmt)
+    experiment = result.unique().scalar_one_or_none()
     if not experiment:
         raise HTTPException(status_code=404, detail="Experiment not found")
 
@@ -198,8 +202,8 @@ async def get_ab_test_report_html(
 
 async def _save_report_to_disk(experiment_id: uuid.UUID) -> None:
     # Use your own session to avoid closing conflicts with the request
-    from app.db.session import async_session_maker
-    async with async_session_maker() as session:
+    from app.db.session import SessionLocal
+    async with SessionLocal() as session:
         generator = ReportGenerator(session)
         try:
             report_content = await generator.generate_experiment_report(experiment_id)

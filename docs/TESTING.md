@@ -9,8 +9,10 @@ You can verify the framework in two ways: **unit tests** (no services required) 
 Runs all pytest tests. They use mocks and do not need Postgres or MLflow.
 
 ```bash
-# From the repo root (after cloning)
-source .venv/bin/activate   # macOS/Linux, after: python -m venv .venv
+cd "/Users/augustodiaz/Downloads/MVP-lab/fintech-portfolio "/project-3/framework
+
+# Activate venv if you use one
+source .venv/bin/activate   # macOS/Linux
 
 # Run all tests
 pytest tests/ -v
@@ -30,7 +32,8 @@ This checks that the API and database work end-to-end.
 ### Step 1: Start infrastructure
 
 ```bash
-# From the repo root
+cd "/Users/augustodiaz/Downloads/MVP-lab/fintech-portfolio "/project-3/framework
+
 docker compose up -d
 ```
 
@@ -41,7 +44,8 @@ Wait until both `framework-postgres-1` and `framework-mlflow-1` are **Up** (`doc
 In a **separate terminal**:
 
 ```bash
-# From the repo root
+cd "/Users/augustodiaz/Downloads/MVP-lab/fintech-portfolio "/project-3/framework"
+
 source .venv/bin/activate
 # Or ensure .env exists (copy from .env.example)
 uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -54,7 +58,7 @@ Leave it running. You should see “Application startup complete” and “Uvico
 In **another terminal**:
 
 ```bash
-# From the repo root
+cd "/Users/augustodiaz/Downloads/MVP-lab/fintech-portfolio "/project-3/framework"
 ./scripts/smoke_test.sh
 ```
 
