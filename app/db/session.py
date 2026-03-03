@@ -24,7 +24,12 @@ def _get_async_url() -> str:
 _async_url = _get_async_url()
 logger.info(f"DB engine: using async driver ({_async_url.split('://')[0]})")
 
-engine = create_async_engine(_async_url, pool_pre_ping=True)
+# Supabase pooler (pgbouncer) doesn't support prepared statements reliably.
+connect_args = {}
+if "pooler" in _async_url or "pgbouncer" in _async_url:
+    connect_args["statement_cache_size"] = 0
+
+engine = create_async_engine(_async_url, pool_pre_ping=True, connect_args=connect_args)
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
