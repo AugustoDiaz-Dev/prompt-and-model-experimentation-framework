@@ -7,17 +7,16 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from app.api.routes import router
 from app.core.config import settings
 from app.core.logging import configure_logging
-from app.db.init_db import init_db
 
 
 def create_app() -> FastAPI:
     configure_logging(settings.log_level)
     app = FastAPI(title="Prompt and Model Experimentation Framework", version="0.1.0")
 
-    # Mount API routes
+    # Import routes lazily (they pull in db session)
+    from app.api.routes import router
     app.include_router(router, prefix="/api")
 
     # Static files
@@ -27,6 +26,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def _startup() -> None:
         logging.getLogger(__name__).info("startup")
+        from app.db.init_db import init_db
         await init_db()
 
     @app.get("/", include_in_schema=False)
