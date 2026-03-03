@@ -41,11 +41,3 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
-# Vercel serverless: initialize DB tables synchronously on cold start
-if settings.is_serverless:
-    from app.db.models import Base
-    from app.db.session import sync_engine
-    if sync_engine:
-        Base.metadata.create_all(bind=sync_engine)
-        logging.getLogger(__name__).info("database_initialized (vercel cold start)")
