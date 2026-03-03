@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import logging
+import os
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-import os
 
 from app.api.routes import router
 from app.core.config import settings
@@ -16,7 +16,7 @@ from app.db.init_db import init_db
 def create_app() -> FastAPI:
     configure_logging(settings.log_level)
     app = FastAPI(title="Prompt and Model Experimentation Framework", version="0.1.0")
-    
+
     # Mount API routes
     app.include_router(router, prefix="/api")
 
@@ -41,3 +41,11 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+# Vercel serverless: initialize DB tables synchronously on cold start
+if settings.is_serverless:
+    from app.db.models import Base
+    from app.db.session import sync_engine
+    if sync_engine:
+        Base.metadata.create_all(bind=sync_engine)
+        logging.getLogger(__name__).info("database_initialized (vercel cold start)")
