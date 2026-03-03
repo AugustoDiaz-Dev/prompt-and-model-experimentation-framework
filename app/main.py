@@ -33,6 +33,10 @@ def create_app() -> FastAPI:
     async def read_index():
         return FileResponse(os.path.join(static_dir, "index.html"))
 
+    @app.get("/favicon.ico", include_in_schema=False)
+    async def favicon():
+        return FileResponse(os.path.join(static_dir, "favicon.png"), media_type="image/png")
+
     @app.get("/app", include_in_schema=False)
     async def read_dashboard():
         return FileResponse(os.path.join(static_dir, "dashboard.html"))
