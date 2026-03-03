@@ -1,0 +1,14 @@
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+test.db
+mlruns/
+reports_output/
+*.egg-info
+.git
+docs/
+tests/
+scripts/
+datasets/

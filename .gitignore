@@ -7,3 +7,7 @@ __pycache__/
 .env
 *.log
 mlruns/
+.coverage
+test.db
+reports_output/
+.vercel/
