@@ -1,27 +1,31 @@
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
-
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+# MLflow is optional — don't crash if not installed or URI not set
+_mlflow_uri = os.environ.get("MLFLOW_TRACKING_URI", "")
+
 try:
+    if not _mlflow_uri:
+        raise ImportError("MLFLOW_TRACKING_URI not set, skipping MLflow")
     import mlflow
     from mlflow.tracking import MlflowClient
 
     MLFLOW_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     MLFLOW_AVAILABLE = False
-    logger.warning("MLflow not installed. Install with: pip install mlflow")
+    logger.info(f"MLflow disabled: {e}")
 
 
 class MLflowTracker:
     def __init__(self):
         if not MLFLOW_AVAILABLE:
-            raise ImportError("MLflow is not installed. Install with: pip install mlflow")
-        mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
+            raise ImportError("MLflow is not available")
+        mlflow.set_tracking_uri(_mlflow_uri)
         self._client = MlflowClient()
 
     def start_run(self, experiment_name: str, run_name: str | None = None) -> str:
@@ -40,7 +44,6 @@ class MLflowTracker:
 
     def log_text(self, text: str, artifact_file: str) -> None:
         mlflow.log_text(text, artifact_file)
-
 
     def end_run(self) -> None:
         mlflow.end_run()
